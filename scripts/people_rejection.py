@@ -25,6 +25,7 @@ class RejectionServer(object):
                 vec.append(vals)
             with open(filename, 'w') as outfile:
                 json.dump(vec, outfile)
+        self.sweep_detections = []
 
     def detection_cb(self, msg):
 
