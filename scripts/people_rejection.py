@@ -11,13 +11,13 @@ class RejectionServer(object):
 
     def observation_cb(self, msg):
 
-        self.sweep_detections.append(latest_detections)
+        self.sweep_detections.append(self.latest_detections)
 
     def finished_cb(self, msg):
 
-        sweep_dir = path.join(path.abspath(msg.xml_file_name), path.pardir)
+        sweep_dir = path.abspath(path.join(path.abspath(msg.xml_file_name), path.pardir))
         for ind, det in enumerate(self.sweep_detections):
-            name = "intermediate_detection%4d.json" % ind
+            name = "intermediate_detection%04d.json" % ind
             filename = path.join(sweep_dir, name)
             vec = []
             for x, y, w, h in zip(det.pos_x, det.pos_y, det.width, det.height):
