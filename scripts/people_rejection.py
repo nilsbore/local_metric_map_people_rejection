@@ -18,7 +18,7 @@ class RejectionServer(object):
 
     def finished_cb(self, msg):
 
-        sweep_dir = path.join(path.abspath(msg.xml_file_name), path.pardir)
+        sweep_dir = path.abspath(path.join(path.abspath(msg.xml_file_name), path.pardir))
 
         req = DetectObjectRequest()
         req.images = self.images
@@ -38,13 +38,13 @@ class RejectionServer(object):
             detections[obj.imageID].append(vals)
 
         for ind, vec in enumerate(detections):
-            name = "intermediate_deep_detection%4d.json" % ind
+            name = "intermediate_detection%04d.json" % ind
             filename = path.join(sweep_dir, name)
             with open(filename, 'w') as outfile:
                 json.dump(vec, outfile)
 
         for ind, det in enumerate(self.sweep_detections):
-            name = "intermediate_detection%4d.json" % ind
+            name = "intermediate_detection%04d.json" % ind
             filename = path.join(sweep_dir, name)
             vec = []
             for x, y, w, h in zip(det.pos_x, det.pos_y, det.width, det.height):
@@ -52,7 +52,9 @@ class RejectionServer(object):
                 vec.append(vals)
             with open(filename, 'w') as outfile:
                 json.dump(vec, outfile)
+
         self.sweep_detections = []
+        self.images = []
 
     def detection_cb(self, msg):
 
