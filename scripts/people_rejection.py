@@ -7,24 +7,24 @@ from upper_body_detector.msg import UpperBodyDetector
 from os import path
 import json
 from deep_object_detection.msg import Object
-from deep_object_detection.srv import DetectObject
+from deep_object_detection.srv import DetectObjects, DetectObjectsRequest
 
 class RejectionServer(object):
 
     def observation_cb(self, msg):
 
-        self.sweep_detections.append(latest_detections)
+        self.sweep_detections.append(self.latest_detections)
         self.images.append(msg)
 
     def finished_cb(self, msg):
 
         sweep_dir = path.abspath(path.join(path.abspath(msg.xml_file_name), path.pardir))
 
-        req = DetectObjectRequest()
+        req = DetectObjectsRequest()
         req.images = self.images
         rospy.wait_for_service('/deep_object_detection/detect_objects')
         try:
-            server = rospy.ServiceProxy('/deep_object_detection/detect_objects', DetectObject)
+            server = rospy.ServiceProxy('/deep_object_detection/detect_objects', DetectObjects)
             resp = server(req)
         except rospy.ServiceException, e:
             print "Service call failed: %s"%e
@@ -38,7 +38,7 @@ class RejectionServer(object):
             detections[obj.imageID].append(vals)
 
         for ind, vec in enumerate(detections):
-            name = "intermediate_detection%04d.json" % ind
+            name = "intermediate_deep_detection%04d.json" % ind
             filename = path.join(sweep_dir, name)
             with open(filename, 'w') as outfile:
                 json.dump(vec, outfile)
