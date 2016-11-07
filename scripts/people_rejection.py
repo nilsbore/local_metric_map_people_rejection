@@ -32,7 +32,7 @@ class RejectionServer(object):
 
         detections = [[] for im in self.images]
         for obj in resp.objects:
-            if obj.label != "chair":
+            if obj.label != "person":
                 continue
             vals = {'x': obj.x, 'y': obj.y, 'width': obj.width, 'height': obj.height}
             detections[obj.imageID].append(vals)
