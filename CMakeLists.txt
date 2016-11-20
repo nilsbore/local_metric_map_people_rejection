@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -137,10 +137,15 @@ add_executable(test_metaroom_detections test/test_metaroom_detections.cpp)
 ## same as for the library above
 # add_dependencies(local_metric_map_people_rejection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+target_link_libraries(metaroom_detections
+  ${Boost_LIBRARIES}
+)
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(test_metaroom_detections
   metaroom_detections
   ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 #############
