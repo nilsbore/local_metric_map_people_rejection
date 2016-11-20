@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(local_metric_map_people_rejection)
 
+add_definitions(-std=c++11)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   semantic_map
   upper_body_detector
+  cereal
 )
 
 ## System dependencies are found with CMake's conventions
@@ -99,8 +102,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES local_metric_map_people_rejection
+  INCLUDE_DIRS include
+  LIBRARIES metaroom_detections
 #  CATKIN_DEPENDS semantic_map upper_body_detector
 #  DEPENDS system_lib
 )
@@ -113,13 +116,14 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(local_metric_map_people_rejection
-#   src/${PROJECT_NAME}/local_metric_map_people_rejection.cpp
-# )
+add_library(metaroom_detections
+  src/metaroom_detections/metaroom_detections.cpp include/metaroom_detections/metaroom_detections.h
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -127,16 +131,17 @@ include_directories(
 # add_dependencies(local_metric_map_people_rejection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(local_metric_map_people_rejection_node src/local_metric_map_people_rejection_node.cpp)
+add_executable(test_metaroom_detections test/test_metaroom_detections.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(local_metric_map_people_rejection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(local_metric_map_people_rejection_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(test_metaroom_detections
+  metaroom_detections
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

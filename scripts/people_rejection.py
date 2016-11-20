@@ -5,9 +5,10 @@ from sensor_msgs.msg import CameraInfo, Image
 from semantic_map.msg import RoomObservation
 from upper_body_detector.msg import UpperBodyDetector
 from os import path
+import sys
 import json
-from deep_object_detection.msg import Object
-from deep_object_detection.srv import DetectObjects, DetectObjectsRequest
+#from deep_object_detection.msg import Object
+#from deep_object_detection.srv import DetectObjects, DetectObjectsRequest
 
 class RejectionServer(object):
 
@@ -20,28 +21,27 @@ class RejectionServer(object):
 
         sweep_dir = path.abspath(path.join(path.abspath(msg.xml_file_name), path.pardir))
 
-        req = DetectObjectsRequest()
-        req.images = self.images
-        rospy.wait_for_service('/deep_object_detection/detect_objects')
-        try:
-            server = rospy.ServiceProxy('/deep_object_detection/detect_objects', DetectObjects)
-            resp = server(req)
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-            return
-
-        detections = [[] for im in self.images]
-        for obj in resp.objects:
-            if obj.label != "person":
-                continue
-            vals = {'x': obj.x, 'y': obj.y, 'width': obj.width, 'height': obj.height}
-            detections[obj.imageID].append(vals)
-
-        for ind, vec in enumerate(detections):
-            name = "intermediate_deep_detection%04d.json" % ind
-            filename = path.join(sweep_dir, name)
-            with open(filename, 'w') as outfile:
-                json.dump(vec, outfile)
+        # req = DetectObjectsRequest()
+        # req.images = self.images
+        # rospy.wait_for_service('/deep_object_detection/detect_objects')
+        # try:
+        #     server = rospy.ServiceProxy('/deep_object_detection/detect_objects', DetectObjects)
+        #     resp = server(req)
+        #     detections = [[] for im in self.images]
+        #     for obj in resp.objects:
+        #         if obj.label != "person":
+        #             continue
+        #         vals = {'x': obj.x, 'y': obj.y, 'width': obj.width, 'height': obj.height}
+        #         detections[obj.imageID].append(vals)
+        #
+        #     for ind, vec in enumerate(detections):
+        #         name = "intermediate_deep_detection%04d.json" % ind
+        #         filename = path.join(sweep_dir, name)
+        #         with open(filename, 'w') as outfile:
+        #             json.dump(vec, outfile)
+        # except rospy.ServiceException, e:
+        #     print "Service call failed: %s"%e
+        #     return
 
         for ind, det in enumerate(self.sweep_detections):
             name = "intermediate_detection%04d.json" % ind
@@ -55,6 +55,18 @@ class RejectionServer(object):
 
         self.sweep_detections = []
         self.images = []
+
+    def simulate_sweep(self, room_xml):
+        msg = RoomObservation()
+        msg.xml_file_name = room_xml
+        for i in range(0, 17):
+            det = UpperBodyDetector()
+            det.pos_x = [1.]
+            det.pos_y = [2.]
+            det.width = [3.]
+            det.height = [4.]
+            self.sweep_detections.append(det)
+        self.finished_cb(msg)
 
     def detection_cb(self, msg):
 
@@ -74,4 +86,8 @@ if __name__ == '__main__':
 
     rospy.init_node('people_rejection_node')
     rs = RejectionServer()
+
+    if len(sys.argv) > 1:
+        rs.simulate_sweep(sys.argv[1])
+
     rospy.spin()
