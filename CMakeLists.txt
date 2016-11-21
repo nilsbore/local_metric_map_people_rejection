@@ -104,7 +104,7 @@ find_package(Boost REQUIRED COMPONENTS system filesystem)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES metaroom_detections
-#  CATKIN_DEPENDS semantic_map upper_body_detector
+  CATKIN_DEPENDS semantic_map upper_body_detector cereal
 #  DEPENDS system_lib
 )
 
@@ -132,12 +132,17 @@ add_library(metaroom_detections
 
 ## Declare a C++ executable
 add_executable(test_metaroom_detections test/test_metaroom_detections.cpp)
+add_executable(test_write_metaroom_detections test/test_write_metaroom_detections.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(local_metric_map_people_rejection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(metaroom_detections
+  ${Boost_LIBRARIES}
+)
+
+target_link_libraries(test_write_metaroom_detections
   ${Boost_LIBRARIES}
 )
 

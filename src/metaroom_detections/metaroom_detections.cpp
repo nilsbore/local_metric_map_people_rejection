@@ -7,6 +7,28 @@
 #include <iomanip>
 #include <fstream>
 
+namespace cereal
+{
+//! Loading for std::map<std::string, float> for text based archives
+template <class Archive, class C, class A>
+typename std::enable_if<traits::is_text_archive<Archive>::value, void>::type
+load(Archive& ar, std::map<std::string, float, C, A>& map)
+{
+    map.clear();
+
+    auto hint = map.begin();
+    while (true) {
+        const auto namePtr = ar.getNodeName();
+        if(!namePtr) {
+            break;
+        }
+        std::string key = namePtr;
+        float value; ar( value );
+        hint = map.emplace_hint( hint, std::move( key ), std::move( value ) );
+    }
+}
+} // namespace cereal
+
 namespace metaroom_detections {
 
 using namespace std;
@@ -25,7 +47,10 @@ vector<vector<tuple<float, float, float, float> > > detections_for_xml(const str
         ss << type << setw(4) << setfill('0') << i;
         boost::filesystem::path file = room_folder / (ss.str() + ".json");
 
-        cout << file.string() << endl;
+        rtn.push_back(vector<tuple<float, float, float, float> >());
+        if (!boost::filesystem::exists(file)) {
+            continue;
+        }
 
         stringstream detections_map;
         {
@@ -33,17 +58,13 @@ vector<vector<tuple<float, float, float, float> > > detections_for_xml(const str
             string str((std::istreambuf_iterator<char>(in)),
                         std::istreambuf_iterator<char>());
             detections_map << "{\"value0\":  " << str << "}";
-            //detections_map << "{\"value0\":  " << "[]" << "}";
-            //detections_map << str;
         }
-        cout << detections_map.str() << endl;
         vector<map<string, float> > detections;
         {
             cereal::JSONInputArchive archive_i(detections_map);
             archive_i(detections);
         }
 
-        rtn.push_back(vector<tuple<float, float, float, float> >());
         for (map<string, float>& det : detections) {
             rtn.back().push_back(make_tuple(det["x"], det["y"], det["width"], det["height"]));
         }

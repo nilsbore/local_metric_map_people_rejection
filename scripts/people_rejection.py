@@ -7,8 +7,8 @@ from upper_body_detector.msg import UpperBodyDetector
 from os import path
 import sys
 import json
-#from deep_object_detection.msg import Object
-#from deep_object_detection.srv import DetectObjects, DetectObjectsRequest
+from deep_object_detection.msg import Object
+from deep_object_detection.srv import DetectObjects, DetectObjectsRequest
 
 class RejectionServer(object):
 
@@ -21,27 +21,27 @@ class RejectionServer(object):
 
         sweep_dir = path.abspath(path.join(path.abspath(msg.xml_file_name), path.pardir))
 
-        # req = DetectObjectsRequest()
-        # req.images = self.images
-        # rospy.wait_for_service('/deep_object_detection/detect_objects')
-        # try:
-        #     server = rospy.ServiceProxy('/deep_object_detection/detect_objects', DetectObjects)
-        #     resp = server(req)
-        #     detections = [[] for im in self.images]
-        #     for obj in resp.objects:
-        #         if obj.label != "person":
-        #             continue
-        #         vals = {'x': obj.x, 'y': obj.y, 'width': obj.width, 'height': obj.height}
-        #         detections[obj.imageID].append(vals)
-        #
-        #     for ind, vec in enumerate(detections):
-        #         name = "intermediate_deep_detection%04d.json" % ind
-        #         filename = path.join(sweep_dir, name)
-        #         with open(filename, 'w') as outfile:
-        #             json.dump(vec, outfile)
-        # except rospy.ServiceException, e:
-        #     print "Service call failed: %s"%e
-        #     return
+        req = DetectObjectsRequest()
+        req.images = self.images
+        rospy.wait_for_service('/deep_object_detection/detect_objects')
+        try:
+            server = rospy.ServiceProxy('/deep_object_detection/detect_objects', DetectObjects)
+            resp = server(req)
+            detections = [[] for im in self.images]
+            for obj in resp.objects:
+                if obj.label != "person":
+                    continue
+                vals = {'x': obj.x, 'y': obj.y, 'width': obj.width, 'height': obj.height}
+                detections[obj.imageID].append(vals)
+
+            for ind, vec in enumerate(detections):
+                name = "intermediate_deep_detection%04d.json" % ind
+                filename = path.join(sweep_dir, name)
+                with open(filename, 'w') as outfile:
+                    json.dump(vec, outfile)
+        except rospy.ServiceException, e:
+            print "Service call failed: %s"%e
+            return
 
         for ind, det in enumerate(self.sweep_detections):
             name = "intermediate_detection%04d.json" % ind
