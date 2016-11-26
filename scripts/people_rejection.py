@@ -9,6 +9,7 @@ import sys
 import json
 from deep_object_detection.msg import Object
 from deep_object_detection.srv import DetectObjects, DetectObjectsRequest
+from std_msgs.msg import String
 
 class RejectionServer(object):
 
@@ -19,7 +20,7 @@ class RejectionServer(object):
 
     def finished_cb(self, msg):
 
-        sweep_dir = path.abspath(path.join(path.abspath(msg.xml_file_name), path.pardir))
+        sweep_dir = path.abspath(path.join(path.abspath(msg.data), path.pardir))
 
         req = DetectObjectsRequest()
         req.images = self.images
@@ -57,8 +58,8 @@ class RejectionServer(object):
         self.images = []
 
     def simulate_sweep(self, room_xml):
-        msg = RoomObservation()
-        msg.xml_file_name = room_xml
+        msg = String()
+        msg.data = room_xml
         for i in range(0, 17):
             det = UpperBodyDetector()
             det.pos_x = [1.]
@@ -75,7 +76,7 @@ class RejectionServer(object):
     def __init__(self):
 
         self.observation_sub = rospy.Subscriber('/local_metric_map/rgb/rgb_filtered', Image, callback=self.observation_cb)
-        self.finished_sub = rospy.Subscriber('/local_metric_map/room_observations', RoomObservation, callback=self.finished_cb)
+        self.finished_sub = rospy.Subscriber('/segmentation_done', String, callback=self.finished_cb)
         self.detection_sub = rospy.Subscriber('/upper_body_detector/detections', UpperBodyDetector, callback=self.detection_cb)
 
         self.latest_detections = UpperBodyDetector()

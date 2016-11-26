@@ -1,4 +1,4 @@
 <launch>
-  <node name="people_rejection" pkg="local_metric_map_people_rejection" type="people_rejection.py"/>
-  <node name="deep_object_detection_node" pkg="deep_object_detection" type="deep_object_detection_node.py" args="--gpu 0"/>
+  <node name="people_rejection" pkg="local_metric_map_people_rejection" type="people_rejection.py" respawn="true"/>
+  <node name="deep_object_detection_node" pkg="deep_object_detection" type="deep_object_detection_node.py" args="--gpu 0" respawn="true"/>
 </launch>
