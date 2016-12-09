@@ -24,6 +24,7 @@ class RejectionServer(object):
 
         req = DetectObjectsRequest()
         req.images = self.images
+        req.observation_path = msg.data
         rospy.wait_for_service('/deep_object_detection/detect_objects')
         try:
             server = rospy.ServiceProxy('/deep_object_detection/detect_objects', DetectObjects)
